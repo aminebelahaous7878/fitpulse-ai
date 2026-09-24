@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مدرب اللياقة">
+<meta name="theme-color" content="#141610">
+<title>مدرب اللياقة الذكي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#12140f; --paper:#f4f2e8; --lime:#c8ff5e; --clay:#ff7a4d; --line:#d8d4c0; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --ink:#f4f2e8; --paper:#141610; --line:#2a2c22; } }
+  :root[data-theme="dark"]{ --ink:#f4f2e8; --paper:#141610; --line:#2a2c22; }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans Arabic', sans-serif;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+  .wrap{max-width:540px; margin:0 auto; padding:18px 18px 40px;}
+  .topbar{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:6px;}
+  select.lang{ width:auto; padding:6px 10px; font-size:13px; border:1px solid var(--line); border-radius:3px; background:transparent; color:var(--ink); margin-bottom:0;}
+  h1{ font-family:'Tajawal', sans-serif; font-weight:900; font-size:clamp(26px,7vw,36px); line-height:1.05; margin:6px 0 4px;}
+  .sub{color:var(--ink); opacity:.65; font-size:14.5px; margin:0 0 16px;}
+  .streak{display:flex; align-items:center; gap:8px; font-size:14px; margin-bottom:16px; opacity:.85;}
+  .streak b{font-size:18px;}
+  .card{ border:1px solid var(--line); border-radius:4px; padding:16px; margin-bottom:14px;}
+  h2.section{ font-family:'Tajawal',sans-serif; font-weight:700; font-size:16px; margin:0 0 12px; display:flex; justify-content:space-between; align-items:center;}
+  label{display:block; font-size:13px; opacity:.7; margin-bottom:6px;}
+  select, input, textarea{ width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:3px;
+    background:var(--paper); color:var(--ink); font-family:inherit; font-size:15px; margin-bottom:12px;}
+  textarea{resize:vertical; min-height:60px;}
+  .row{display:flex; gap:10px;}
+  .row > div{flex:1;}
+  button{ width:100%; padding:13px; border:none; border-radius:3px; background:var(--lime); color:#12140f;
+    font-family:'Tajawal',sans-serif; font-weight:700; font-size:15px; cursor:pointer;}
+  button:disabled{opacity:.5;}
+  button.ghost{background:transparent; border:1px solid var(--line); color:var(--ink);}
+  button.small{width:auto; padding:9px 16px; font-size:14px;}
+  .plan-block{margin-bottom:14px;}
+  .plan-block h3{font-size:14px; opacity:.6; margin:0 0 8px; font-weight:500;}
+  .ex-item{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); font-size:14.5px;}
+  .ex-item:last-child{border-bottom:none;}
+  .ex-item b{font-weight:500;}
+  .ex-item span{opacity:.7;}
+  #chatlog{display:flex; flex-direction:column; gap:10px; margin-bottom:14px; max-height:42vh; overflow-y:auto;}
+  .msg{padding:10px 13px; border-radius:3px; font-size:14.5px; line-height:1.6; max-width:88%; white-space:pre-wrap;}
+  .msg.user{align-self:flex-end; background:var(--clay); color:#1a1208;}
+  .msg.ai{align-self:flex-start; background:var(--line); color:var(--ink);}
+  .msg.sys{align-self:center; background:transparent; color:var(--ink); opacity:.6; font-size:13px;}
+  .chatbar{display:flex; gap:8px;}
+  .chatbar input{margin-bottom:0;}
+  .chatbar button{width:auto; padding:0 18px;}
+  .hidden{display:none !important;}
+  .tag{display:inline-block; font-size:12px; opacity:.6; margin-bottom:10px;}
+  .note{border:1px solid var(--line); border-radius:3px; padding:10px 12px; margin-bottom:8px; font-size:14px;}
+  .note .date{font-size:12px; opacity:.55; margin-bottom:4px;}
+  .banner{background:var(--lime); color:#12140f; padding:12px 14px; border-radius:3px; margin-bottom:14px; font-size:14px; display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .banner button{width:auto; background:#12140f; color:var(--lime); padding:6px 12px; font-size:13px;}
+  svg.chart{width:100%; height:120px;}
+  .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:20px; font-size:13px; opacity:0; transition:opacity .2s; pointer-events:none;}
+  .toast.show{opacity:.95;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="tag" data-i18n="tag">مدرب شخصي بجيبك</span>
+    <select class="lang" id="langSel" onchange="setLang(this.value)">
+      <option value="ar">العربية</option><option value="en">English</option><option value="fr">Français</option>
+    </select>
+  </div>
+  <h1 data-i18n="title">مدرب اللياقة الذكي</h1>
+  <p class="sub" data-i18n="subtitle">عبّي بياناتك، وخذ خطة يومية ذكية تتكلم معك.</p>
+  <div class="streak hidden" id="streakBar">🔥 <b id="streakNum">0</b> <span data-i18n="streakLabel">أيام متتالية</span></div>
+
+  <div id="reminderBanner" class="banner hidden">
+    <span id="bannerText"></span>
+    <button onclick="dismissBanner()" data-i18n="dismiss">تمام</button>
+  </div>
+
+  <div class="card" id="formCard">
+    <label data-i18n="goalLabel">هدفك</label>
+    <select id="goal"><option value="lose_weight" data-i18n="goal_lose">تخسيس</option><option value="muscle" data-i18n="goal_muscle">بناء عضلات</option><option value="fitness" data-i18n="goal_fitness">لياقة عامة</option></select>
+    <div class="row">
+      <div><label data-i18n="weightLabel">الوزن (كجم)</label><input type="number" id="weight" placeholder="70"></div>
+      <div><label data-i18n="heightLabel">الطول (سم)</label><input type="number" id="height" placeholder="175"></div>
+    </div>
+    <label data-i18n="activityLabel">مستوى نشاطك</label>
+    <select id="activity"><option value="sedentary" data-i18n="act_low">قليل الحركة</option><option value="light" data-i18n="act_light">نشاط خفيف</option><option value="moderate" data-i18n="act_mod">نشاط متوسط</option><option value="high" data-i18n="act_high">نشاط عالي</option></select>
+    <label data-i18n="reminderLabel">وقت تذكير التمرين اليومي (اختياري)</label>
+    <input type="time" id="reminderTime">
+    <button id="genBtn" onclick="generatePlan()" data-i18n="genBtn">ابنِ خطتي</button>
+  </div>
+
+  <div class="card hidden" id="planCard">
+    <h2 class="section"><span data-i18n="planTitle">خطة اليوم</span><span id="focusTag" style="font-size:12px; opacity:.55; font-weight:400;"></span></h2>
+    <div id="plan"></div>
+    <button class="ghost small" style="margin-top:8px;" onclick="generatePlan(true)" data-i18n="regenBtn">خطة جديدة لليوم</button>
+  </div>
+
+  <div class="card hidden" id="chatCard">
+    <h2 class="section"><span data-i18n="askTitle">اسأل مدربك</span></h2>
+    <div id="chatlog"></div>
+    <div class="chatbar"><input id="chatInput" data-i18n-ph="chatPh" placeholder="مثلاً: بديل لتمرين الضغط؟"><button onclick="sendMsg()" data-i18n="send">أرسل</button></div>
+  </div>
+
+  <div class="card hidden" id="weightCard">
+    <h2 class="section" data-i18n="weightTitle">تتبع الوزن</h2>
+    <svg class="chart" id="weightChart" viewBox="0 0 300 120"></svg>
+    <div class="row" style="margin-top:10px;">
+      <div><input type="number" id="weightLog" placeholder="72.5"></div>
+      <div style="flex:0 0 auto;"><button class="small" onclick="logWeight()" data-i18n="logWeight" style="width:auto;">تسجيل</button></div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="journalCard">
+    <h2 class="section" data-i18n="journalTitle">ملاحظاتك اليومية</h2>
+    <textarea id="noteInput" data-i18n-ph="notePh" placeholder="كيف كان تمرينك اليوم؟"></textarea>
+    <button class="small" onclick="addNote()" data-i18n="addNote" style="width:auto;">أضف ملاحظة</button>
+    <div id="notesList" style="margin-top:14px;"></div>
+    <button class="ghost small" style="margin-top:10px;" onclick="shareSummary()" data-i18n="shareBtn">📋 نسخ ملخص التقدم</button>
+  </div>
+
+  <button class="ghost hidden" id="doneBtn" onclick="markDone()" data-i18n="doneBtn" style="margin-top:2px;">✅ أنجزت تمرين اليوم</button>
+  <button class="ghost hidden" id="resetBtn" onclick="location.reload()" data-i18n="resetBtn" style="margin-top:6px;">ابدأ من جديد</button>
+  <p style="text-align:center; font-size:12px; opacity:.45; margin-top:24px;">Founded by Mohamed Amine Belahaous</p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const I18N = {
+  ar:{dir:"rtl",tag:"مدرب شخصي بجيبك",title:"مدرب اللياقة الذكي",subtitle:"عبّي بياناتك، وخذ خطة يومية ذكية تتكلم معك.",
+    goalLabel:"هدفك",goal_lose:"تخسيس",goal_muscle:"بناء عضلات",goal_fitness:"لياقة عامة",weightLabel:"الوزن (كجم)",heightLabel:"الطول (سم)",activityLabel:"مستوى نشاطك",
+    act_low:"قليل الحركة",act_light:"نشاط خفيف",act_mod:"نشاط متوسط",act_high:"نشاط عالي",reminderLabel:"وقت تذكير التمرين اليومي (اختياري)",genBtn:"ابنِ خطتي",
+    planTitle:"خطة اليوم",regenBtn:"خطة جديدة لليوم",warmup:"إحماء",main:"التمارين الرئيسية",cooldown:"تهدئة",askTitle:"اسأل مدربك",chatPh:"مثلاً: بديل لتمرين الضغط؟",send:"أرسل",
+    weightTitle:"تتبع الوزن",logWeight:"تسجيل",journalTitle:"ملاحظاتك اليومية",notePh:"كيف كان تمرينك اليوم؟",addNote:"أضف ملاحظة",shareBtn:"📋 نسخ ملخص التقدم",
+    doneBtn:"✅ أنجزت تمرين اليوم",resetBtn:"ابدأ من جديد",dismiss:"تمام",streakLabel:"أيام متتالية",generating:"جاري بناء خطتك...",fallback:"تعذر الوصول للذكاء الاصطناعي هنا.",
+    thinking:"...",adjustedEasy:"💡 لاحظت إنك متعب، خففت خطتك الجاية شوي.",copied:"تم النسخ! الصقه بأي مكان",doneToast:"عاشت الأيادي! 🔥",days:["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],
+    focuses:["كامل الجسم","صدر وترايسبس","سويقات","ظهر وبايسبس","أكتاف وكور","كارديو وحركة","راحة نشطة"]},
+  en:{dir:"ltr",tag:"a personal coach in your pocket",title:"AI Fitness Coach",subtitle:"Fill in your details and get a smart daily plan that talks back.",
+    goalLabel:"Your goal",goal_lose:"Lose weight",goal_muscle:"Build muscle",goal_fitness:"General fitness",weightLabel:"Weight (kg)",heightLabel:"Height (cm)",activityLabel:"Activity level",
+    act_low:"Sedentary",act_light:"Light",act_mod:"Moderate",act_high:"High",reminderLabel:"Daily workout reminder (optional)",genBtn:"Build my plan",
+    planTitle:"Today's plan",regenBtn:"New plan for today",warmup:"Warm-up",main:"Main exercises",cooldown:"Cool-down",askTitle:"Ask your coach",chatPh:"e.g. alternative to push-ups?",send:"Send",
+    weightTitle:"Weight tracker",logWeight:"Log",journalTitle:"Your daily notes",notePh:"How did today's workout go?",addNote:"Add note",shareBtn:"📋 Copy progress summary",
+    doneBtn:"✅ Workout done today",resetBtn:"Start over",dismiss:"Got it",streakLabel:"day streak",generating:"Building your plan...",fallback:"Couldn't reach the AI here.",
+    thinking:"...",adjustedEasy:"💡 Noticed you're tired, eased up tomorrow's plan.",copied:"Copied! Paste it anywhere",doneToast:"Nice work! 🔥",days:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+    focuses:["Full body","Chest & triceps","Legs","Back & biceps","Shoulders & core","Cardio & mobility","Active recovery"]},
+  fr:{dir:"ltr",tag:"un coach personnel dans votre poche",title:"Coach Fitness IA",subtitle:"Remplissez vos infos et recevez un plan quotidien intelligent.",
+    goalLabel:"Votre objectif",goal_lose:"Perdre du poids",goal_muscle:"Prendre du muscle",goal_fitness:"Forme générale",weightLabel:"Poids (kg)",heightLabel:"Taille (cm)",activityLabel:"Niveau d'activité",
+    act_low:"Sédentaire",act_light:"Légère",act_mod:"Modérée",act_high:"Élevée",reminderLabel:"Rappel d'entraînement quotidien (optionnel)",genBtn:"Créer mon plan",
+    planTitle:"Plan du jour",regenBtn:"Nouveau plan du jour",warmup:"Échauffement",main:"Exercices principaux",cooldown:"Retour au calme",askTitle:"Posez une question",chatPh:"ex : alternative aux pompes ?",send:"Envoyer",
+    weightTitle:"Suivi du poids",logWeight:"Enregistrer",journalTitle:"Vos notes quotidiennes",notePh:"Comment s'est passé l'entraînement ?",addNote:"Ajouter une note",shareBtn:"📋 Copier le résumé",
+    doneBtn:"✅ Entraînement terminé",resetBtn:"Recommencer",dismiss:"Compris",streakLabel:"jours d'affilée",generating:"Construction du plan...",fallback:"Impossible de joindre l'IA ici.",
+    thinking:"...",adjustedEasy:"💡 Vous semblez fatigué, plan allégé pour demain.",copied:"Copié ! Collez-le où vous voulez",doneToast:"Bravo ! 🔥",days:["Dimanche","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi"],
+    focuses:["Corps entier","Pecs & triceps","Jambes","Dos & biceps","Épaules & gainage","Cardio & mobilité","Récupération active"]}
+};
+let lang = localStorage.getItem('fc_lang') || 'ar';
+document.getElementById('langSel').value = lang;
+function t(){ return I18N[lang]; }
+function applyI18n(){
+  document.getElementById('htmlRoot').lang = lang; document.getElementById('htmlRoot').dir = t().dir;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(t()[k]) el.textContent = t()[k]; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ const k=el.getAttribute('data-i18n-ph'); if(t()[k]) el.placeholder = t()[k]; });
+  renderNotes(); renderStreak(); renderWeightChart();
+}
+function setLang(v){ lang=v; try{localStorage.setItem('fc_lang',v);}catch(e){} applyI18n(); }
+function showToast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2200); }
+
+let sample=null, userProfile=null, history=[];
+async function initSample(){ try{ sample = await claude.use("sample"); }catch(e){ sample=null; } }
+initSample();
+
+function planText(plan){
+  const T=t(); let html='';
+  const section=(title,items)=>{ if(!items||!items.length) return ''; return `<div class="plan-block"><h3>${title}</h3>${items.map(it=>`<div class="ex-item"><b>${it.name}</b><span>${it.detail||''}</span></div>`).join('')}</div>`; };
+  html += section(T.warmup, plan.warmup) + section(T.main, plan.main) + section(T.cooldown, plan.cooldown);
+  return html || (plan.text||'');
+}
+
+function todayFocus(){ const d = new Date().getDay(); return {name: t().focuses[d], dayName: t().days[d]}; }
+
+async function generatePlan(regen){
+  const T=t();
+  const goal=document.getElementById('goal').value, weight=document.getElementById('weight').value||'n/a',
+        height=document.getElementById('height').value||'n/a', activity=document.getElementById('activity').value,
+        reminderTime=document.getElementById('reminderTime').value;
+  userProfile={goal,weight,height,activity,lang};
+  try{ localStorage.setItem('fc_profile', JSON.stringify(userProfile)); }catch(e){}
+
+  if(reminderTime){ try{ localStorage.setItem('fc_reminder', reminderTime); Notification && Notification.requestPermission && Notification.requestPermission().catch(()=>{}); }catch(e){} startReminderWatch(); }
+
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('planCard').classList.remove('hidden');
+  document.getElementById('plan').textContent = T.generating;
+  const focus = todayFocus();
+  document.getElementById('focusTag').textContent = focus.dayName + ' · ' + focus.name;
+
+  if(!sample){ await initSample(); }
+  if(!sample){ document.getElementById('plan').textContent = T.fallback; return; }
+
+  let easyNote = ''; try{ if(localStorage.getItem('fc_easy_mode')==='1'){ easyNote = ' The user recently reported fatigue — make this plan noticeably lighter/easier than usual.'; localStorage.removeItem('fc_easy_mode'); } }catch(e){}
+
+  const langNames={ar:'Arabic',en:'English',fr:'French'};
+  const sys = `You are an expert, encouraging fitness coach. User profile: goal=${goal}, weight=${weight}kg, height=${height}cm, activity level=${activity}. Today's training focus: ${focus.name}.${easyNote} Respond entirely in ${langNames[lang]}.
+Design a smart, safe workout plan for today's focus, tailored to the profile. Return ONLY JSON, no prose:
+{"warmup":[{"name":"...","detail":"..."}],"main":[{"name":"...","detail":"reps/sets or duration"}],"cooldown":[{"name":"...","detail":"..."}]}
+2-3 warmup items, 4-6 main items, 1-2 cooldown items. Keep names and details short.`;
+
+  try{
+    const res = await sample.json(sys, {modelTier:"complex"});
+    document.getElementById('plan').innerHTML = planText(res);
+    history.push({role:"assistant", content: JSON.stringify(res)});
+  }catch(e){ document.getElementById('plan').textContent = T.fallback; }
+
+  document.getElementById('formCard').classList.add('hidden');
+  document.getElementById('chatCard').classList.remove('hidden');
+  document.getElementById('weightCard').classList.remove('hidden');
+  document.getElementById('journalCard').classList.remove('hidden');
+  document.getElementById('doneBtn').classList.remove('hidden');
+  document.getElementById('resetBtn').classList.remove('hidden');
+  document.getElementById('genBtn').disabled = false;
+}
+
+function addMsg(text,who){ const log=document.getElementById('chatlog'); const d=document.createElement('div'); d.className='msg '+who; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
+
+const FATIGUE_WORDS = ['تعبان','تعبت','صعب','صعبة','تعب','مرهق','tired','exhausted','hard','difficult','too much','fatigué','fatiguée','difficile','dur'];
+function detectFatigue(text){ const low = text.toLowerCase(); return FATIGUE_WORDS.some(w => low.includes(w)); }
+
+async function sendMsg(){
+  const T=t();
+  const input=document.getElementById('chatInput'); const text=input.value.trim();
+  if(!text||!sample) return;
+  addMsg(text,'user'); input.value='';
+  const thinking = addMsg(T.thinking,'ai');
+
+  const langNames={ar:'Arabic',en:'English',fr:'French'};
+  const lastPlan = history.length ? history[history.length-1].content : '(none)';
+  const context = `You are the same fitness coach, for a user with goal=${userProfile.goal}, activity=${userProfile.activity}, weight=${userProfile.weight}kg, height=${userProfile.height}cm.
+Their current plan (JSON): ${lastPlan}
+Answer their follow-up briefly and practically, in ${langNames[lang]}.`;
+
+  try{
+    const res = await sample([{role:"user", content: context+"\n\nUser question: "+text}], {modelTier:"quick"});
+    thinking.textContent = res.text;
+    history.push({role:"user",content:text}); history.push({role:"assistant",content:res.text});
+  }catch(e){ thinking.textContent = T.fallback; }
+
+  if(detectFatigue(text)){
+    try{ localStorage.setItem('fc_easy_mode','1'); }catch(e){}
+    addMsg(T.adjustedEasy,'sys');
+  }
+}
+document.getElementById('chatInput')?.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMsg(); });
+
+function loadNotes(){ try{ return JSON.parse(localStorage.getItem('fc_notes')||'[]'); }catch(e){ return []; } }
+function saveNotes(n){ try{ localStorage.setItem('fc_notes', JSON.stringify(n)); }catch(e){} }
+function addNote(){ const input=document.getElementById('noteInput'); const text=input.value.trim(); if(!text) return;
+  const notes=loadNotes(); notes.unshift({date:new Date().toLocaleDateString(lang), text}); saveNotes(notes); input.value=''; renderNotes(); }
+function renderNotes(){ const list=document.getElementById('notesList'); if(!list) return;
+  list.innerHTML = loadNotes().map(n=>`<div class="note"><div class="date">${n.date}</div>${n.text}</div>`).join(''); }
+
+function loadWeights(){ try{ return JSON.parse(localStorage.getItem('fc_weights')||'[]'); }catch(e){ return []; } }
+function saveWeights(w){ try{ localStorage.setItem('fc_weights', JSON.stringify(w)); }catch(e){} }
+function logWeight(){ const v=parseFloat(document.getElementById('weightLog').value); if(!v) return;
+  const ws=loadWeights(); ws.push({date:Date.now(), value:v}); saveWeights(ws); document.getElementById('weightLog').value=''; renderWeightChart(); }
+function renderWeightChart(){
+  const svg=document.getElementById('weightChart'); if(!svg) return;
+  const ws=loadWeights(); if(ws.length<2){ svg.innerHTML = ''; return; }
+  const vals=ws.map(w=>w.value); const min=Math.min(...vals), max=Math.max(...vals); const pad=(max-min||1)*0.15;
+  const lo=min-pad, hi=max+pad; const W=300,H=120;
+  const pts = ws.map((w,i)=>{ const x = i*(W/(ws.length-1)); const y = H - ((w.value-lo)/(hi-lo))*H; return `${x},${y}`; }).join(' ');
+  svg.innerHTML = `<polyline points="${pts}" fill="none" stroke="var(--lime)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>` +
+    ws.map((w,i)=>{ const x=i*(W/(ws.length-1)); const y=H-((w.value-lo)/(hi-lo))*H; return `<circle cx="${x}" cy="${y}" r="3.5" fill="var(--clay)"/>`; }).join('');
+}
+
+function loadStreak(){ try{ return JSON.parse(localStorage.getItem('fc_streak')||'{"count":0,"last":null}'); }catch(e){ return {count:0,last:null}; } }
+function saveStreak(s){ try{ localStorage.setItem('fc_streak', JSON.stringify(s)); }catch(e){} }
+function renderStreak(){ const s=loadStreak(); const bar=document.getElementById('streakBar');
+  if(s.count>0){ bar.classList.remove('hidden'); document.getElementById('streakNum').textContent = s.count; } else bar.classList.add('hidden'); }
+function markDone(){
+  const s=loadStreak(); const today=new Date().toDateString();
+  if(s.last===today){ showToast(t().doneToast); return; }
+  const yesterday=new Date(Date.now()-86400000).toDateString();
+  s.count = (s.last===yesterday) ? s.count+1 : 1; s.last=today; saveStreak(s); renderStreak(); showToast(t().doneToast);
+}
+
+function shareSummary(){
+  const s=loadStreak(); const ws=loadWeights(); const notes=loadNotes();
+  const wLine = ws.length ? `${ws[0].value} → ${ws[ws.length-1].value} kg` : '—';
+  const summary = `🏋️ ${t().title}\n${t().streakLabel}: ${s.count}\n${t().weightTitle}: ${wLine}\n${t().journalTitle}: ${notes.length}`;
+  try{ navigator.clipboard.writeText(summary); showToast(t().copied); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=summary; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(_){} document.body.removeChild(ta); showToast(t().copied); }
+}
+
+let reminderInterval=null;
+function startReminderWatch(){ if(reminderInterval) clearInterval(reminderInterval); reminderInterval=setInterval(checkReminder,30000); checkReminder(); }
+function checkReminder(){
+  let time; try{ time=localStorage.getItem('fc_reminder'); }catch(e){ time=null; } if(!time) return;
+  const now=new Date(); const hhmm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0'); const today=now.toDateString();
+  let lastFired=null; try{ lastFired=localStorage.getItem('fc_reminder_fired'); }catch(e){}
+  if(hhmm===time && lastFired!==today){ try{ localStorage.setItem('fc_reminder_fired', today); }catch(e){} fireReminder(); }
+}
+function fireReminder(){
+  const msg = lang==='ar' ? 'وقت التمرين! يلا نبدأ 💪' : (lang==='fr' ? "C'est l'heure de s'entraîner ! 💪" : "Workout time! Let's go 💪");
+  document.getElementById('bannerText').textContent = msg; document.getElementById('reminderBanner').classList.remove('hidden');
+  try{ if(typeof Notification!=='undefined' && Notification.permission==='granted') new Notification(msg); }catch(e){}
+}
+function dismissBanner(){ document.getElementById('reminderBanner').classList.add('hidden'); }
+
+applyI18n();
+(function init(){ let time; try{ time=localStorage.getItem('fc_reminder'); }catch(e){ time=null; } if(time) startReminderWatch(); })();
+</script>
+</body>
+</html>
